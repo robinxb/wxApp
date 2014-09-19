@@ -88,14 +88,13 @@ class AFC_APP (wx.App):
 		else:
 			panel = pages.MainPanel(self.mainFrame)
 			panel.SetHotfixCB(self._OnClickHotFix)
+			panel.SetSyncSvnToGitFunction(self._OnClickSyncSvnToGit)
 			self.MainPanel = panel
 			self.mainFrame.Fit()
 
 	def ShowGitBranches(self):
 		self.HideAllPanel()
 		self.GitBranchPanel = pages.GitBranchPanel(self.mainFrame)
-		self.GitBranchPanel.SetClickFunc(self._OnClickBranch)
-		self.mainFrame.Fit()
 
 	def ShowInitPanel(self):
 		self.HideAllPanel()
@@ -107,12 +106,18 @@ class AFC_APP (wx.App):
 		self.ConfigPanel = pages.ConfigPanel(self.mainFrame)
 		self.mainFrame.Fit()
 
+	def ShowSvnToGitPanel(self):
+		self.HideAllPanel()
+		self.ConfigPanel = pages.SvnToGitPanel(self.mainFrame)
+		self.mainFrame.Fit()
+
 	#function for buttons
-	def _OnClickBranch(self, branchString):
-		self.GitBranchPanel.HotFixBranch(branchString)
 
 	def _OnClickHotFix(self):
 		self.ShowGitBranches()
+
+	def _OnClickSyncSvnToGit(self):
+		self.ShowSvnToGitPanel()
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ import shutil
 import wx
 
 class Git():
-	def __init__(self, path = path.GetGitPath()):
+	def __init__(self, path):
 		self.path = path
 
 	def IsGitPath(self):
@@ -53,7 +53,7 @@ class Git():
 		if type(cmdList) is list or type(cmdList) is tuple:
 			seq = []
 			for s in cmdList:
-				assert(type(s) is str)
+				assert(type(s) is str or type(s) is unicode)
 				seq.append(helper.Command(s, cwd=cwd))
 			helper.CommandSequence(seq).execute()
 		elif type(cmdList) is str:

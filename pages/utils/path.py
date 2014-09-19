@@ -40,44 +40,43 @@ def GetUserDataLocatin(filename = None):
 	else:
 		return AppDirs("AegeanTool", "Ejoy").user_data_dir
 
-def GetDesignAfcPath():
+def _GetLocalCfg(key):
 	globalConfig = GetUserDataLocatin("global")
 	basedir = os.path.dirname(globalConfig)
 	if not os.path.exists(basedir):
 		os.makedirs(basedir)
 	shelf = shelve.open(globalConfig)
-	path = None
-	if shelf.has_key("afcDesignPath"):
-		path = shelf["afcDesignPath"]
+	var = None
+	if shelf.has_key(key):
+		var = shelf[key]
 	shelf.close()
-	return path
+	return var
+
+def _SetLocalCfg(key, val):
+	assert(type(key) == unicode or type(key) == str)
+	assert(type(val) == unicode or type(val) == str)
+	globalConfig = GetUserDataLocatin("global")
+	basedir = os.path.dirname(globalConfig)
+	if not os.path.exists(basedir):
+		os.makedirs(basedir)
+	shelf = shelve.open(globalConfig)
+	shelf[key] = val
+	shelf.close()
+
+def GetDesignAfcPath():
+	return _GetLocalCfg("afcDesignPath")
 
 def SetDesignAfcPath(path):
-	globalConfig = GetUserDataLocatin("global")
-	basedir = os.path.dirname(globalConfig)
-	if not os.path.exists(basedir):
-		os.makedirs(basedir)
-	shelf = shelve.open(globalConfig)
-	shelf["afcDesignPath"] = path
-	shelf.close()
+	return _SetLocalCfg("afcDesignPath", path)
 
 def GetCodeGitPath():
-	globalConfig = GetUserDataLocatin("global")
-	basedir = os.path.dirname(globalConfig)
-	if not os.path.exists(basedir):
-		os.makedirs(basedir)
-	shelf = shelve.open(globalConfig)
-	path = None
-	if shelf.has_key("afcGitPath"):
-		path = shelf["afcGitPath"]
-	shelf.close()
-	return path
+	return _GetLocalCfg("afcGitPath")
 
 def SetCodeGitPath(path):
-	globalConfig = GetUserDataLocatin("global")
-	basedir = os.path.dirname(globalConfig)
-	if not os.path.exists(basedir):
-		os.makedirs(basedir)
-	shelf = shelve.open(globalConfig)
-	shelf["afcGitPath"] = path
-	shelf.close()
+	return _SetLocalCfg("afcGitPath", path)
+
+def GetSVNPath():
+	return _GetLocalCfg("SVNPath")
+
+def SetSVNPath(path):
+	return _SetLocalCfg("SVNPath", path)

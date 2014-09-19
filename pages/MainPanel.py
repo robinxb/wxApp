@@ -24,7 +24,7 @@ class MainPanel ( wx.Panel ):
 		self.m_btnClientHotFix = wx.Button( self, wx.ID_ANY, u"客户端热更新", wx.DefaultPosition, wx.DefaultSize, 0 )
 		gSizer1.Add( self.m_btnClientHotFix, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
 
-		self.m_btnNewBranch = wx.Button( self, wx.ID_ANY, u"创建新分支并发布IPA", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_btnNewBranch = wx.Button( self, wx.ID_ANY, u"同步当前SVN至制定美术分支", wx.DefaultPosition, wx.DefaultSize, 0 )
 		gSizer1.Add( self.m_btnNewBranch, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
 
 
@@ -33,6 +33,7 @@ class MainPanel ( wx.Panel ):
 
 		# Connect Events
 		self.m_btnClientHotFix.Bind( wx.EVT_BUTTON, self.OnClickHotFix )
+		self.m_btnNewBranch.Bind( wx.EVT_BUTTON, self._OnClickSyncSvnToGit )
 
 	def __del__( self ):
 		pass
@@ -45,3 +46,9 @@ class MainPanel ( wx.Panel ):
 
 	def SetHotfixCB(self, cb):
 		self.OnClickHotFixFunction = cb
+
+	def _OnClickSyncSvnToGit(self, event):
+		self.OnClickSyncSvnToGitFunction()
+
+	def SetSyncSvnToGitFunction(self, cb):
+		self.OnClickSyncSvnToGitFunction = cb

@@ -75,6 +75,8 @@ class GitBranchPanel ( wx.Panel ):
 	# Virtual event handlers, overide them in your derived class
 	def _OnConfirm( self, event ):
 		event.Skip()
+		artBranchStr, codeBranchStr = self.m_listArt.GetStringSelection(), self.m_listCode.GetStringSelection()
+		self.HotFixBranch(artBranchStr, codeBranchStr)
 
 	def _LoadGit(self):
 		artGitPath, afcGitPath = utils.path.GetDesignAfcPath(), utils.path.GetCodeGitPath()
@@ -104,21 +106,18 @@ class GitBranchPanel ( wx.Panel ):
 		for b in branches:
 			self.m_listCode.Append(b)
 
-	def OnClickBranchBtn(self, event, branch):
-		self._cb(branch)
-
-	def SetClickFunc(self, cb):
-		self._cb = cb
-
-	def HotFixBranch(self, branchStr):
+	def HotFixBranch(self, artBranch, codeBranch):
 		# checkout to this branch
-		branch = branchStr.split("/")[-1]
-		self.git.Checkout(branch)
+		artBranch = artBranch.split("/")[-1]
+		self.artGit.Checkout(artBranch)
+
+		codeBranch = codeBranch.split("/")[-1]
+		self.codeGit.Checkout(codeBranch)
 
 		# get current version
-		cur_script_version, cur_major_version = utils.cfg.GetVersion(branch)
+		cur_script_version, cur_major_version = utils.cfg.GetVersion(codeBranch)
 
-		# prepare for generate hotfix files
+		# # prepare for generate hotfix files
 		with utils.path.GetNewTempDir() as temp_dir:
 			print("*** Generate HotFix file in --> %s \n"%temp_dir)
 
