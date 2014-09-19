@@ -104,12 +104,6 @@ class GitBranchPanel ( wx.Panel ):
 		for b in branches:
 			self.m_listCode.Append(b)
 
-		# for b in banches:
-		# 	pass
-			# btn = wx.Button( self, wx.ID_ANY, b, wx.DefaultPosition, wx.DefaultSize, 0 )
-			# self.gitBranchSizer.Add(btn, 0, wx.ALIGN_CENTER|wx.ALL, 5)
-			# self.Bind(wx.EVT_BUTTON, lambda event, branch=b: self.OnClickBranchBtn(event, branch), btn)
-
 	def OnClickBranchBtn(self, event, branch):
 		self._cb(branch)
 

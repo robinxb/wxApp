@@ -63,7 +63,7 @@ class InitPanel ( wx.Panel ):
 				d.Show()
 				return
 
-		if not os.path.exists(cur_path):
+		if cur_path != None and cur_path != "" and not os.path.exists(cur_path):
 			utils.path.SetDesignAfcPath(None)
 
 		path = self.m_dirPicker1.GetPath()
