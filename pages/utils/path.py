@@ -60,3 +60,24 @@ def SetDesignAfcPath(path):
 	shelf = shelve.open(globalConfig)
 	shelf["afcDesignPath"] = path
 	shelf.close()
+
+def GetCodeGitPath():
+	globalConfig = GetUserDataLocatin("global")
+	basedir = os.path.dirname(globalConfig)
+	if not os.path.exists(basedir):
+		os.makedirs(basedir)
+	shelf = shelve.open(globalConfig)
+	path = None
+	if shelf.has_key("afcGitPath"):
+		path = shelf["afcGitPath"]
+	shelf.close()
+	return path
+
+def SetCodeGitPath(path):
+	globalConfig = GetUserDataLocatin("global")
+	basedir = os.path.dirname(globalConfig)
+	if not os.path.exists(basedir):
+		os.makedirs(basedir)
+	shelf = shelve.open(globalConfig)
+	shelf["afcGitPath"] = path
+	shelf.close()

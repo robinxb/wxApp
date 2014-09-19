@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import wx
-import wx.xrc
-import utils
-
-# -*- coding: utf-8 -*-
-
 ###########################################################################
 ## Python code generated with wxFormBuilder (version Jun  5 2014)
 ## http://www.wxformbuilder.org/
@@ -15,6 +9,10 @@ import utils
 
 import wx
 import wx.xrc
+import utils
+import os
+
+from ErrorDialog import ErrorDialog
 
 ###########################################################################
 ## Class GitBranchPanel
@@ -68,6 +66,8 @@ class GitBranchPanel ( wx.Panel ):
 		# Connect Events
 		self.m_button30.Bind( wx.EVT_BUTTON, self._OnConfirm )
 
+		self._LoadGit()
+
 	def __del__( self ):
 		pass
 
@@ -76,31 +76,55 @@ class GitBranchPanel ( wx.Panel ):
 	def _OnConfirm( self, event ):
 		event.Skip()
 
-    def _LoadGit(self):
-        self.git = utils.Git()
-        current_branch, banches, stdout = self.git.GetBranches()
+	def _LoadGit(self):
+		artGitPath, afcGitPath = utils.path.GetDesignAfcPath(), utils.path.GetCodeGitPath()
+		if not os.path.exists(artGitPath) or not os.path.exists(afcGitPath):
+			d = ErrorDialog(self)
+			d.m_staticText6.SetLabel(u"请先在设置中设置路径")
+			d.Show()
+			return
+		self.artGit = utils.Git(artGitPath)
+		self.codeGit = utils.Git(afcGitPath)
+		if not self.artGit.IsGitPath():
+			d = ErrorDialog(self)
+			d.m_staticText6.SetLabel(u"美术资源路径无效")
+			d.Show()
+			return
+		if not self.codeGit.IsGitPath():
+			d = ErrorDialog(self)
+			d.m_staticText6.SetLabel(u"程序资源路径无效")
+			d.Show()
+			return
 
-        for b in banches:
-        	pass
-            # btn = wx.Button( self, wx.ID_ANY, b, wx.DefaultPosition, wx.DefaultSize, 0 )
-            # self.gitBranchSizer.Add(btn, 0, wx.ALIGN_CENTER|wx.ALL, 5)
-            # self.Bind(wx.EVT_BUTTON, lambda event, branch=b: self.OnClickBranchBtn(event, branch), btn)
+		current_branch, branches, stdout = self.artGit.GetBranches()
+		for b in branches:
+			self.m_listArt.Append(b)
 
-    def OnClickBranchBtn(self, event, branch):
-    	self._cb(branch)
+		current_branch, branches, stdout = self.codeGit.GetBranches()
+		for b in branches:
+			self.m_listCode.Append(b)
 
-    def SetClickFunc(self, cb):
-    	self._cb = cb
+		# for b in banches:
+		# 	pass
+			# btn = wx.Button( self, wx.ID_ANY, b, wx.DefaultPosition, wx.DefaultSize, 0 )
+			# self.gitBranchSizer.Add(btn, 0, wx.ALIGN_CENTER|wx.ALL, 5)
+			# self.Bind(wx.EVT_BUTTON, lambda event, branch=b: self.OnClickBranchBtn(event, branch), btn)
 
-    def HotFixBranch(self, branchStr):
-    	# checkout to this branch
-    	branch = branchStr.split("/")[-1]
-    	self.git.Checkout(branch)
+	def OnClickBranchBtn(self, event, branch):
+		self._cb(branch)
 
-    	# get current version
-    	cur_script_version, cur_major_version = utils.cfg.GetVersion(branch)
+	def SetClickFunc(self, cb):
+		self._cb = cb
 
-    	# prepare for generate hotfix files
-    	with utils.path.GetNewTempDir() as temp_dir:
-    		print("*** Generate HotFix file in --> %s \n"%temp_dir)
+	def HotFixBranch(self, branchStr):
+		# checkout to this branch
+		branch = branchStr.split("/")[-1]
+		self.git.Checkout(branch)
+
+		# get current version
+		cur_script_version, cur_major_version = utils.cfg.GetVersion(branch)
+
+		# prepare for generate hotfix files
+		with utils.path.GetNewTempDir() as temp_dir:
+			print("*** Generate HotFix file in --> %s \n"%temp_dir)
 

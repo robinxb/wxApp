@@ -32,6 +32,9 @@ class MainFrame ( wx.Frame ):
 		self.m_menuItemInitDesignGit = wx.MenuItem( self.m_menu4, wx.ID_ANY, u"初始化", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu4.AppendItem( self.m_menuItemInitDesignGit )
 
+		self.m_menuItem3 = wx.MenuItem( self.m_menu4, wx.ID_ANY, u"设置", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu4.AppendItem( self.m_menuItem3 )
+
 		self.m_menubar2.Append( self.m_menu4, u"操作" )
 
 		self.SetMenuBar( self.m_menubar2 )
@@ -43,6 +46,7 @@ class MainFrame ( wx.Frame ):
 		# Connect Events
 		self.Bind( wx.EVT_MENU, self.ShowMainFrame, id = self.m_menuItem2.GetId() )
 		self.Bind( wx.EVT_MENU, self.ShowInitPanel, id = self.m_menuItemInitDesignGit.GetId() )
+		self.Bind( wx.EVT_MENU, self.ShowConfigPanel, id = self.m_menuItem3.GetId() )
 
 	def __del__( self ):
 		pass
@@ -57,6 +61,10 @@ class MainFrame ( wx.Frame ):
 		event.Skip()
 		self.app.ShowMainFrame()
 
+	def ShowConfigPanel( self, event ):
+		event.Skip()
+		self.app.ShowConfigPanel()
+
 
 class AFC_APP (wx.App):
 	def __init__(self, parent = False):
@@ -68,7 +76,7 @@ class AFC_APP (wx.App):
 		wx.App.__del__(self)
 
 	def HideAllPanel(self):
-		for s in ("MainPanel","GitBranchPanel", "InitPanel"):
+		for s in ("MainPanel","GitBranchPanel", "InitPanel", "ConfigPanel"):
 			p = getattr(self, s, None)
 			if p:
 				p.Hide()
@@ -81,15 +89,23 @@ class AFC_APP (wx.App):
 			panel = pages.MainPanel(self.mainFrame)
 			panel.SetHotfixCB(self._OnClickHotFix)
 			self.MainPanel = panel
+			self.mainFrame.Fit()
 
 	def ShowGitBranches(self):
 		self.HideAllPanel()
 		self.GitBranchPanel = pages.GitBranchPanel(self.mainFrame)
 		self.GitBranchPanel.SetClickFunc(self._OnClickBranch)
+		self.mainFrame.Fit()
 
 	def ShowInitPanel(self):
 		self.HideAllPanel()
 		self.InitPanel = pages.InitPanel(self.mainFrame)
+		self.mainFrame.Fit()
+
+	def ShowConfigPanel(self):
+		self.HideAllPanel()
+		self.ConfigPanel = pages.ConfigPanel(self.mainFrame)
+		self.mainFrame.Fit()
 
 	#function for buttons
 	def _OnClickBranch(self, branchString):

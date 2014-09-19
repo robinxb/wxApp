@@ -4,3 +4,4 @@ from GitPage import GitBranchPanel
 from MainPanel import MainPanel
 from InitPanel import InitPanel
 from ErrorDialog import ErrorDialog
+from ConfigPanel import ConfigPanel
