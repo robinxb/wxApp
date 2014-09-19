@@ -61,10 +61,19 @@ class Git():
 		else:
 			raise NameError, "cmd must be list, there is a " + str(type(cmdList))
 
-	def InitWithArtGit(self, path):
-		# if self.IsGitPath():
-		# 	shutil.rmtree(temp_dir)
-		dlg = wx.MessageDialog(self,
-		"Do you really want to close this application?",
-		"Confirm Exit", wx.OK|wx.CANCEL|wx.ICON_QUESTION)
-		result = dlg.ShowModal()
+	def InitWithArtGit(self):
+		cmd = helper.Command("git clone ssh://git@oa.ejoy.com/afc.git %s"%(self.path.split(os.sep)[-1]), os.path.dirname(r"%s"%self.path))
+		cmd.execute()
+
+		stderr = ""
+		for line in cmd.proc.stderr:
+			if "Cloning" not in line:
+				stderr += line
+		if stderr != "":
+			return False, stderr
+		else:
+			stdout = ""
+			for line in cmd.proc.stdout:
+				stdout += line
+			return True, stdout
+

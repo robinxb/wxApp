@@ -31,4 +31,3 @@ class CommandSequence(Command):
 	def SetCWD(self, cwd):
 		for s in self.steps:
 			s.SetCWD(cwd)
-

@@ -24,6 +24,11 @@ class MainFrame ( wx.Frame ):
 
 		self.m_menubar2 = wx.MenuBar( 0 )
 		self.m_menu4 = wx.Menu()
+		self.m_menuItem2 = wx.MenuItem( self.m_menu4, wx.ID_ANY, u"主界面", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu4.AppendItem( self.m_menuItem2 )
+
+		self.m_menu4.AppendSeparator()
+
 		self.m_menuItemInitDesignGit = wx.MenuItem( self.m_menu4, wx.ID_ANY, u"初始化", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu4.AppendItem( self.m_menuItemInitDesignGit )
 
@@ -36,6 +41,7 @@ class MainFrame ( wx.Frame ):
 		self.Show()
 
 		# Connect Events
+		self.Bind( wx.EVT_MENU, self.ShowMainFrame, id = self.m_menuItem2.GetId() )
 		self.Bind( wx.EVT_MENU, self.ShowInitPanel, id = self.m_menuItemInitDesignGit.GetId() )
 
 	def __del__( self ):
@@ -46,6 +52,10 @@ class MainFrame ( wx.Frame ):
 	def ShowInitPanel( self, event ):
 		event.Skip()
 		self.app.ShowInitPanel()
+
+	def ShowMainFrame( self, event ):
+		event.Skip()
+		self.app.ShowMainFrame()
 
 
 class AFC_APP (wx.App):
@@ -58,7 +68,7 @@ class AFC_APP (wx.App):
 		wx.App.__del__(self)
 
 	def HideAllPanel(self):
-		for s in ("MainPanel","GitBranchPanel"):
+		for s in ("MainPanel","GitBranchPanel", "InitPanel"):
 			p = getattr(self, s, None)
 			if p:
 				p.Hide()
