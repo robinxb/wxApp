@@ -4,12 +4,10 @@ import os
 import re
 import path
 import helper
-import shutil
 
-import wx
-
-class Git():
+class Git(object):
 	def __init__(self, path):
+		super(Git, self).__init__()
 		self.path = path
 
 	def IsGitPath(self):
@@ -41,10 +39,16 @@ class Git():
 		return current, branchList, stdout
 
 	def Checkout(self, branchStr):
-		self._command(["git stash", "git stash drop", "git checkout %s"%branchStr], self.path)
+		self._command(["git clean -df", "git checkout .", "git checkout %s"%branchStr], self.path)
 
 	def Pull(self):
 		self._command("git pull", self.path)
+
+	def Commit(self, args = ""):
+		self._command("git commit %s"%args)
+
+	def Add(self, files = "."):
+		self._command("git add %s"%files)
 
 	def Fetch(self):
 		pass
@@ -77,3 +81,5 @@ class Git():
 				stdout += line
 			return True, stdout
 
+	def GetPath(self):
+		return self.path

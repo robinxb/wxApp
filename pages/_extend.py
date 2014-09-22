@@ -220,6 +220,49 @@ class SvnToGitPanel ( wx.Panel ):
 
 
 ###########################################################################
+## Class SvnToGitProcess
+###########################################################################
+
+class SvnToGitProcess ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"请等待", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE|wx.STAY_ON_TOP )
+
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+
+		bSizer20 = wx.BoxSizer( wx.VERTICAL )
+
+		self.m_StepDesc = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_StepDesc.Wrap( -1 )
+		bSizer20.Add( self.m_StepDesc, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+		self.m_gauge1 = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 300,-1 ), wx.GA_HORIZONTAL )
+		self.m_gauge1.SetValue( 0 )
+		bSizer20.Add( self.m_gauge1, 0, wx.ALL, 5 )
+
+		self.m_Text = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,300 ), wx.TE_MULTILINE|wx.TE_READONLY )
+		bSizer20.Add( self.m_Text, 0, wx.ALL|wx.EXPAND, 5 )
+
+
+		self.SetSizer( bSizer20 )
+		self.Layout()
+		bSizer20.Fit( self )
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.OnTryClose )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, overide them in your derived class
+	def OnTryClose( self, event ):
+		event.Skip()
+
+
+###########################################################################
 ## Class InitPanel
 ###########################################################################
 
@@ -257,45 +300,6 @@ class InitPanel ( wx.Panel ):
 
 	# Virtual event handlers, overide them in your derived class
 	def _OnConfirmBtnClick( self, event ):
-		event.Skip()
-
-
-###########################################################################
-## Class ErrorDialog
-###########################################################################
-
-class ErrorDialog ( wx.Dialog ):
-
-	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"错误", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
-
-		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
-
-		bSizer8 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_staticText6 = wx.StaticText( self, wx.ID_ANY, u"MyLabel", wx.DefaultPosition, wx.Size( 400,100 ), wx.ALIGN_CENTRE )
-		self.m_staticText6.Wrap( -1 )
-		bSizer8.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-		self.m_button29 = wx.Button( self, wx.ID_ANY, u"确定", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer8.Add( self.m_button29, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-
-		self.SetSizer( bSizer8 )
-		self.Layout()
-		bSizer8.Fit( self )
-
-		self.Centre( wx.BOTH )
-
-		# Connect Events
-		self.m_button29.Bind( wx.EVT_BUTTON, self._Close )
-
-	def __del__( self ):
-		pass
-
-
-	# Virtual event handlers, overide them in your derived class
-	def _Close( self, event ):
 		event.Skip()
 
 
@@ -345,6 +349,18 @@ class ConfigPanel ( wx.Panel ):
 
 
 		bSizer14.Add( bSizer162, 1, wx.EXPAND, 5 )
+
+		bSizer1611 = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.m_staticText12 = wx.StaticText( self, wx.ID_ANY, u"BuilderIP地址", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText12.Wrap( -1 )
+		bSizer1611.Add( self.m_staticText12, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.m_BuilderIP = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		bSizer1611.Add( self.m_BuilderIP, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+
+		bSizer14.Add( bSizer1611, 1, wx.EXPAND, 5 )
 
 		bSizer161 = wx.BoxSizer( wx.VERTICAL )
 
