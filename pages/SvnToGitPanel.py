@@ -89,10 +89,11 @@ class SvnToGitPanel(_extend.SvnToGitPanel):
 
 	#### STEP 2
 	def _CommitToGit(self):
+		self.m_ProcessBar.m_Text.AppendText(u"正在提交至服务器\n")
 		self.afcGit.Add()
 		self.afcGit.Commit('-a -m "update from svn"')
-		self.m_ProcessBar.m_Text.AppendText(u"正在提交至服务器\n")
 		self.m_ProcessBar.m_Finished = True
+		self.m_ProcessBar.m_Text.AppendText(u"完成\n")
 
 class CopyThread(threading.Thread):
 	def __init__(self, parent, src, dest):
