@@ -1,8 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from GitPage import GitBranchPanel
-from MainPanel import MainPanel
-from InitPanel import InitPanel
-from ErrorDialog import ErrorDialog
-from ConfigPanel import ConfigPanel
-from SvnToGitPanel import SvnToGitPanel
+from MainFrame import MainFrame

@@ -1,56 +1,15 @@
 # -*- coding: utf-8 -*-
 
-###########################################################################
-## Python code generated with wxFormBuilder (version Jun  5 2014)
-## http://www.wxformbuilder.org/
-##
-## PLEASE DO "NOT" EDIT THIS FILE!
-###########################################################################
+import _extend
 
-import wx
-import wx.xrc
 import utils
 import os
 from ErrorDialog import ErrorDialog
 
+class InitPanel(_extend.InitPanel):
+	def __init__(self, parent):
+		super(InitPanel, self).__init__(parent)
 
-###########################################################################
-## Class InitPanel
-###########################################################################
-
-class InitPanel ( wx.Panel ):
-
-	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL )
-
-		bSizer7 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_staticText4 = wx.StaticText( self, wx.ID_ANY, u"Step1: 请选择待存放美术资源的目录(Git)(路径不能有中文)", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText4.Wrap( -1 )
-		bSizer7.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-		self.m_dirPicker1 = wx.DirPickerCtrl( self, wx.ID_ANY, wx.EmptyString, u"请选择文件夹", wx.DefaultPosition, wx.DefaultSize, wx.DIRP_DEFAULT_STYLE )
-		bSizer7.Add( self.m_dirPicker1, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-		self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, u"Step2: 点击按钮", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText5.Wrap( -1 )
-		bSizer7.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-		self.m_button26 = wx.Button( self, wx.ID_ANY, u"点我从服务器获取美术资源", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer7.Add( self.m_button26, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-
-		self.SetSizer( bSizer7 )
-		self.Layout()
-
-		# Connect Events
-		self.m_button26.Bind( wx.EVT_BUTTON, self._OnConfirmBtnClick )
-
-	def __del__( self ):
-		pass
-
-
-	# Virtual event handlers, overide them in your derived class
 	def _OnConfirmBtnClick( self, event ):
 		event.Skip()
 
