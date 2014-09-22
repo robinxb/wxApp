@@ -3,7 +3,6 @@
 from _extend import MainFrame
 import MainPanel
 import InitPanel
-import ErrorDialog
 import ConfigPanel
 import SvnToGitPanel
 import GitBranchPanel
@@ -15,7 +14,6 @@ class MainFrame(MainFrame):
 
 		self.m_Panels["MainPanel"] = MainPanel.MainPanel(self)
 		self.m_Panels["InitPanel"] = InitPanel.InitPanel(self)
-		self.m_Panels["ErrorDialog"] = ErrorDialog.ErrorDialog(self)
 		self.m_Panels["ConfigPanel"] = ConfigPanel.ConfigPanel(self)
 		self.m_Panels["SvnToGitPanel"] = SvnToGitPanel.SvnToGitPanel(self)
 		self.m_Panels["GitBranchPanel"] = GitBranchPanel.GitBranchPanel(self)

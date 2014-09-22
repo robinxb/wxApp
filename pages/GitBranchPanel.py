@@ -3,8 +3,7 @@
 import _extend
 import utils
 import os
-
-from ErrorDialog import ErrorDialog
+import wx
 
 class GitBranchPanel ( _extend.GitBranchPanel ):
 	def __init__(self, parent = None):
@@ -18,27 +17,23 @@ class GitBranchPanel ( _extend.GitBranchPanel ):
 	def LoadGit(self):
 		artGitPath, afcGitPath = utils.path.GetDesignAfcPath(), utils.path.GetCodeGitPath()
 		if not os.path.exists(artGitPath) or not os.path.exists(afcGitPath):
-			d = ErrorDialog(self)
-			d.m_staticText6.SetLabel(u"请先在设置中设置路径")
-			d.Show()
+			wx.MessageBox(u"请先在设置中设置路径", u'错误', wx.OK | wx.ICON_INFORMATION)
 			return
 		self.artGit = utils.Git(artGitPath)
 		self.codeGit = utils.Git(afcGitPath)
 		if not self.artGit.IsGitPath():
-			d = ErrorDialog(self)
-			d.m_staticText6.SetLabel(u"美术资源路径无效")
-			d.Show()
+			wx.MessageBox(u"美术资源路径无效", u'错误', wx.OK | wx.ICON_ERROR)
 			return
 		if not self.codeGit.IsGitPath():
-			d = ErrorDialog(self)
-			d.m_staticText6.SetLabel(u"程序资源路径无效")
-			d.Show()
+			wx.MessageBox(u"程序资源路径无效", u'错误', wx.OK | wx.ICON_ERROR)
 			return
 
+		self.m_listArt.Clear()
 		current_branch, branches, stdout = self.artGit.GetBranches()
 		for b in branches:
 			self.m_listArt.Append(b)
 
+		self.m_listCode.Clear()
 		current_branch, branches, stdout = self.codeGit.GetBranches()
 		for b in branches:
 			self.m_listCode.Append(b)

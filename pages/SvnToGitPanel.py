@@ -10,6 +10,7 @@ class SvnToGitPanel(_extend.SvnToGitPanel):
 		super(SvnToGitPanel, self).__init__(parent)
 
 	def LoadPath(self):
+		self.m_ArtBranchList.Clear()
 		artPath = utils.path.GetDesignAfcPath()
 		if artPath and os.path.exists(artPath):
 			self.afcGit = utils.Git(artPath)
