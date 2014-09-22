@@ -9,6 +9,7 @@ class Command( object ):
 		self.cwd = cwd
 
 	def execute(self):
+		print(self.text)
 		self.proc = subprocess.Popen(self.text,
 			shell=True,
 			cwd=self.cwd,
