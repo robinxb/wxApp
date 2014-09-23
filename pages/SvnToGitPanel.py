@@ -8,11 +8,11 @@ import SvnToGitProcess
 import wx
 import threading
 import shutil
+import re
 
 # SRC DEST
 COPY_INFO = [
-	("convert", os.path.join("common", "convert")),
-	(os.path.join("resource", "res"), "res"),
+	(os.path.join("convert", "client_output"), os.path.join("common", "convert", "client_output")),
 	(os.path.join("resource", "res_bin"), "res_bin"),
 	(os.path.join("resource", "audio"), "audio"),
 	(os.path.join("resource", "script_bin"), "script_bin"),
@@ -89,11 +89,30 @@ class SvnToGitPanel(_extend.SvnToGitPanel):
 
 	#### STEP 2
 	def _CommitToGit(self):
-		self.m_ProcessBar.m_Text.AppendText(u"正在提交至服务器\n")
-		self.afcGit.Add()
-		self.afcGit.Commit('-a -m "update from svn"')
-		self.m_ProcessBar.m_Finished = True
-		self.m_ProcessBar.m_Text.AppendText(u"完成\n")
+		t = CommitThread(self)
+		t.start()
+
+
+class CommitThread(threading.Thread):
+	def __init__(self, parent):
+		super(CommitThread, self).__init__()
+		self.parent = parent
+
+	def _pushcb(self, text):
+		res = re.match(r".*?(\d+)%.*?\((\d+)/(\d+)", text)
+		if res:
+			self.parent.m_ProcessBar.m_Text.AppendText(text + "\n")
+			self.parent.m_ProcessBar.m_gauge1.SetRange(res.groups()[2])
+			self.parent.m_ProcessBar.m_gauge1.SetValue(res.groups()[1])
+
+	def run(self):
+		self.parent.m_ProcessBar.m_Text.AppendText(u"正在提交至服务器\n")
+		self.parent.afcGit.AddAll()
+		self.parent.afcGit.AllCommit("update from svn")
+		self.parent.afcGit.Push(self._pushcb)
+		self.parent.m_ProcessBar.m_Finished = True
+		self.parent.m_ProcessBar.m_Text.AppendText(u"\n!!! 完成\n")
+
 
 class CopyThread(threading.Thread):
 	def __init__(self, parent, src, dest):

@@ -4,11 +4,66 @@ import os
 import re
 import path
 import helper
+import subprocess
+import contextlib
+
+newlines = ['\n', '\r\n', '\r']
+def unbuffered(proc, stream='stdout'):
+    stream = getattr(proc, stream)
+    with contextlib.closing(stream):
+        while True:
+            out = []
+            last = stream.read(1)
+            if last == '' and proc.poll() is not None:
+                break
+            while last not in newlines:
+                if last == '' and proc.poll() is not None:
+                    break
+                out.append(last)
+                last = stream.read(1)
+            out = ''.join(out)
+            yield out
+
+def _progress(cmd, fn = None, cwd = None):
+    cmd = ['git'] + cmd + ["--progress"]
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+        cwd = cwd
+    )
+    for line in unbuffered(proc):
+    	print(line)
+    	if fn:
+	        fn(line)
+
 
 class Git(object):
 	def __init__(self, path):
 		super(Git, self).__init__()
 		self.path = path
+
+	def Clone(self, repo, cb):
+		_progress(["clone", repo], fn = cb, cwd = self.path)
+
+	def Push(self, cb):
+		_progress(["push",], fn = cb, cwd = self.path)
+
+	def Push(self, cb):
+		_progress(["push",], fn = cb, cwd = self.path)
+
+	def AddAll(self):
+		proc = subprocess.Popen(["git", "add", "."],
+			cwd=self.path
+			)
+		proc.wait()
+
+	def AllCommit(self, text = "Auto commit"):
+		proc = subprocess.Popen(["git", "commit", "--all", "-m", text],
+			cwd=self.path
+			)
+		proc.wait()
 
 	def IsGitPath(self):
 		if not os.path.isdir(self.path):
@@ -39,16 +94,10 @@ class Git(object):
 		return current, branchList, stdout
 
 	def Checkout(self, branchStr):
-		self._command(["git clean -df", "git checkout .", "git checkout %s"%branchStr], self.path)
+		self._command(["git reset --hard HEAD", "git clean -df", "git checkout %s"%branchStr], self.path)
 
 	def Pull(self):
 		self._command("git pull", self.path)
-
-	def Commit(self, args = ""):
-		self._command("git commit %s"%args)
-
-	def Add(self, files = "."):
-		self._command("git add %s"%files)
 
 	def Fetch(self):
 		pass
