@@ -9,6 +9,7 @@
 
 import wx
 import wx.xrc
+import wx.propgrid as pg
 
 ###########################################################################
 ## Class MainFrame
@@ -131,31 +132,48 @@ class MainPanel ( wx.Panel ):
 	def __init__( self, parent ):
 		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL )
 
-		gSizer1 = wx.GridSizer( 0, 2, 0, 0 )
+		bSizer22 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_btnClientHotFix = wx.Button( self, wx.ID_ANY, u"客户端热更新", wx.DefaultPosition, wx.DefaultSize, 0 )
-		gSizer1.Add( self.m_btnClientHotFix, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"美术使用" ), wx.VERTICAL )
 
 		self.m_btnNewBranch = wx.Button( self, wx.ID_ANY, u"同步当前SVN至制定美术分支", wx.DefaultPosition, wx.DefaultSize, 0 )
-		gSizer1.Add( self.m_btnNewBranch, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		sbSizer1.Add( self.m_btnNewBranch, 0, wx.ALIGN_CENTER|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
-		self.SetSizer( gSizer1 )
+		bSizer22.Add( sbSizer1, 1, wx.EXPAND, 5 )
+
+		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"程序使用" ), wx.VERTICAL )
+
+		self.m_btnClientHotFix = wx.Button( self, wx.ID_ANY, u"客户端热更新", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer2.Add( self.m_btnClientHotFix, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+
+		self.m_button7 = wx.Button( self, wx.ID_ANY, u"网页分支发布设置", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer2.Add( self.m_button7, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5 )
+
+
+		bSizer22.Add( sbSizer2, 1, wx.EXPAND, 5 )
+
+
+		self.SetSizer( bSizer22 )
 		self.Layout()
 
 		# Connect Events
-		self.m_btnClientHotFix.Bind( wx.EVT_BUTTON, self.OnClickHotFix )
 		self.m_btnNewBranch.Bind( wx.EVT_BUTTON, self._OnClickSyncSvnToGit )
+		self.m_btnClientHotFix.Bind( wx.EVT_BUTTON, self._OnClickHotFix )
+		self.m_button7.Bind( wx.EVT_BUTTON, self._OnClickWebRelease )
 
 	def __del__( self ):
 		pass
 
 
 	# Virtual event handlers, overide them in your derived class
-	def OnClickHotFix( self, event ):
+	def _OnClickSyncSvnToGit( self, event ):
 		event.Skip()
 
-	def _OnClickSyncSvnToGit( self, event ):
+	def _OnClickHotFix( self, event ):
+		event.Skip()
+
+	def _OnClickWebRelease( self, event ):
 		event.Skip()
 
 
@@ -226,7 +244,7 @@ class SvnToGitPanel ( wx.Panel ):
 class SvnToGitProcess ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"请等待", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE|wx.STAY_ON_TOP )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"请等待", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 
@@ -383,6 +401,125 @@ class ConfigPanel ( wx.Panel ):
 
 	# Virtual event handlers, overide them in your derived class
 	def _OnSave( self, event ):
+		event.Skip()
+
+
+###########################################################################
+## Class WebReleaseFrame
+###########################################################################
+
+class WebReleaseFrame ( wx.Frame ):
+
+	def __init__( self, parent ):
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"分支发布页面", pos = wx.DefaultPosition, size = wx.Size( 500,700 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+
+		bSizer22 = wx.BoxSizer( wx.VERTICAL )
+
+		self.m_scrolledWindow1 = wx.ScrolledWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
+		self.m_scrolledWindow1.SetScrollRate( 5, 5 )
+		bSizer24 = wx.BoxSizer( wx.VERTICAL )
+
+		sbSizer13 = wx.StaticBoxSizer( wx.StaticBox( self.m_scrolledWindow1, wx.ID_ANY, u"Step1: 选择或创建分支" ), wx.HORIZONTAL )
+
+		bSizer26 = wx.BoxSizer( wx.VERTICAL )
+
+		m_BranchListChoices = []
+		self.m_BranchList = wx.ListBox( self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_BranchListChoices, 0 )
+		bSizer26.Add( self.m_BranchList, 0, wx.ALL, 5 )
+
+		self.m_AddButton = wx.Button( self.m_scrolledWindow1, wx.ID_ANY, u"添加", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer26.Add( self.m_AddButton, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+
+		sbSizer13.Add( bSizer26, 1, wx.EXPAND, 5 )
+
+		bSizer25 = wx.BoxSizer( wx.VERTICAL )
+
+		self.m_propertyGrid2 = pg.PropertyGrid(self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.propgrid.PG_BOLD_MODIFIED|wx.propgrid.PG_DEFAULT_STYLE|wx.propgrid.PG_SPLITTER_AUTO_CENTER)
+		self.m_propertyGrid2.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_INACTIVECAPTION ) )
+
+		self.m_propertyGridItem11 = self.m_propertyGrid2.Append( pg.PropertyCategory( u"Web分支设置", u"Web分支设置" ) )
+		self.m_ItemBranchName = self.m_propertyGrid2.Append( pg.StringProperty( u"分支名", u"分支名" ) )
+		self.m_ItemDesc = self.m_propertyGrid2.Append( pg.StringProperty( u"Desc", u"Desc" ) )
+		self.m_ItemIsIos = self.m_propertyGrid2.Append( pg.BoolProperty( u"iOS分支", u"iOS分支" ) )
+		self.m_ItemAppName = self.m_propertyGrid2.Append( pg.StringProperty( u"(iOS)app_name", u"(iOS)app_name" ) )
+		self.m_ItemBundleID = self.m_propertyGrid2.Append( pg.StringProperty( u"(iOS)bundle_id", u"(iOS)bundle_id" ) )
+		self.m_propertyGridItem10 = self.m_propertyGrid2.Append( pg.PropertyCategory( u"服务器设置", u"服务器设置" ) )
+		self.m_ItemServerName = self.m_propertyGrid2.Append( pg.StringProperty( u"服务器名字", u"服务器名字" ) )
+		self.m_ItemServerIP = self.m_propertyGrid2.Append( pg.StringProperty( u"服务器IP", u"服务器IP" ) )
+		self.m_ItemVersion1 = self.m_propertyGrid2.Append( pg.IntProperty( u"主版本号", u"主版本号" ) )
+		self.m_ItemVersion2 = self.m_propertyGrid2.Append( pg.IntProperty( u"子版本号", u"子版本号" ) )
+		self.m_ItemVersion3 = self.m_propertyGrid2.Append( pg.IntProperty( u"修订版本号", u"修订版本号" ) )
+		bSizer25.Add( self.m_propertyGrid2, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+		sbSizer13.Add( bSizer25, 1, wx.EXPAND, 5 )
+
+
+		bSizer24.Add( sbSizer13, 1, wx.EXPAND, 5 )
+
+		sbSizer14 = wx.StaticBoxSizer( wx.StaticBox( self.m_scrolledWindow1, wx.ID_ANY, u"Step2: 选择美术与程序分支" ), wx.HORIZONTAL )
+
+		sbSizer16 = wx.StaticBoxSizer( wx.StaticBox( self.m_scrolledWindow1, wx.ID_ANY, u"美术分支" ), wx.VERTICAL )
+
+		m_ArtBranchChoices = []
+		self.m_ArtBranch = wx.ListBox( self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_ArtBranchChoices, 0 )
+		sbSizer16.Add( self.m_ArtBranch, 0, wx.ALL, 5 )
+
+
+		sbSizer14.Add( sbSizer16, 1, wx.EXPAND, 5 )
+
+		sbSizer17 = wx.StaticBoxSizer( wx.StaticBox( self.m_scrolledWindow1, wx.ID_ANY, u"程序分支" ), wx.VERTICAL )
+
+		m_CodeBranchChoices = []
+		self.m_CodeBranch = wx.ListBox( self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_CodeBranchChoices, 0 )
+		sbSizer17.Add( self.m_CodeBranch, 0, wx.ALL, 5 )
+
+
+		sbSizer14.Add( sbSizer17, 1, wx.EXPAND, 5 )
+
+
+		bSizer24.Add( sbSizer14, 1, wx.EXPAND, 5 )
+
+		sbSizer15 = wx.StaticBoxSizer( wx.StaticBox( self.m_scrolledWindow1, wx.ID_ANY, u"Step3: 执行" ), wx.VERTICAL )
+
+		self.m_ExecuteButton = wx.Button( self.m_scrolledWindow1, wx.ID_ANY, u"执行", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer15.Add( self.m_ExecuteButton, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+
+		bSizer24.Add( sbSizer15, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
+
+
+		self.m_scrolledWindow1.SetSizer( bSizer24 )
+		self.m_scrolledWindow1.Layout()
+		bSizer24.Fit( self.m_scrolledWindow1 )
+		bSizer22.Add( self.m_scrolledWindow1, 1, wx.EXPAND |wx.ALL, 5 )
+
+
+		self.SetSizer( bSizer22 )
+		self.Layout()
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.m_BranchList.Bind( wx.EVT_LISTBOX, self._OnSelectItem )
+		self.m_AddButton.Bind( wx.EVT_BUTTON, self._OnClickAddButton )
+		self.m_ExecuteButton.Bind( wx.EVT_BUTTON, self._OnClickExecute )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, overide them in your derived class
+	def _OnSelectItem( self, event ):
+		event.Skip()
+
+	def _OnClickAddButton( self, event ):
+		event.Skip()
+
+	def _OnClickExecute( self, event ):
 		event.Skip()
 
 
