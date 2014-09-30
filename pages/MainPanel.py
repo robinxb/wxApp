@@ -2,6 +2,7 @@
 
 import _extend
 import WebReleaseFrame
+import HotFixFrame
 
 class MainPanel(_extend.MainPanel):
 	def __init__(self, parent):
@@ -9,7 +10,8 @@ class MainPanel(_extend.MainPanel):
 
 	def _OnClickHotFix( self, event ):
 		event.Skip()
-		self.GetParent().ShowGitBranchPanel()
+		m = HotFixFrame.HotFixFrame(self)
+		m.Show()
 
 	def _OnClickSyncSvnToGit( self, event ):
 		event.Skip()

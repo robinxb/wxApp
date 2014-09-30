@@ -54,21 +54,25 @@ def CreateBranch(sshobj, data):
 
 	return True
 
-def BuildIPA(sshobj, codeBranch, artBranch):
+def BuildIPA(sshobj, uuid):
 	print '===== Build IPA ====='
-	(sshin1, sshout1, ssherr) = sshobj.exec_command('cd ~/project && ./build.sh %s %s %s %s'%(codeBranch, artBranch))
-	success = False
+	(sshin1, sshout1, ssherr) = sshobj.exec_command('cd ~/project/branch && python build.py %s'%(uuid))
+	build_success = False
+	hash_success = False
 	while True:
 		line = sshout1.readline()
 		if line != '':
 			out = line.rstrip('\n')
 			print(out)
 			if "BUILDER_IPA_SUCCESS" in out:
-				success = True
+				build_success = True
+			if "MD5_GENERATE_SUCCESS" in out:
+				hash_success = True
 		else:
 			break
-	if not success:
+	if not build_success or not hash_success:
 		print '===== Build Fail, Please Check The Error ====='
+		print ssherr.read()
 		return False
 	return True
 
@@ -110,6 +114,8 @@ class branchDetail(object):
 		self.version1 = None
 		self.version2 = None
 		self.version3 = None
+		self.code_branch = None
+		self.art_branch = None
 
 class WebReleaseFrame(_extend.WebReleaseFrame):
 	def __init__(self, parent):
@@ -122,6 +128,9 @@ class WebReleaseFrame(_extend.WebReleaseFrame):
 		self._fetchAll()
 		self._loadAll()
 
+	def __del__(self):
+		self.ssh.close()
+		print '===== SSH close ====='
 
 	def _fetchAll(self):
 		self.branches = []
@@ -148,13 +157,13 @@ class WebReleaseFrame(_extend.WebReleaseFrame):
 				success, info = GetBranchInfo(self.ssh, bObject.uuid)
 				print(success, info)
 				if success:
+					bObject.code_branch = info['codeBranch']
+					bObject.art_branch = info['artBranch']
+					bObject.version1, bObject.version2, bObject.version3 = info['version'].split('.')
 					self.branches.append(bObject)
+					self.m_BranchList.Append(bObject.name)
 
 	def _loadAll(self):
-		# self.m_ItemType.InsertChoice("ios", 1)
-		for obj in self.branches:
-			self.m_BranchList.Append(obj.name)
-
 		artGitPath, afcGitPath = utils.path.GetDesignAfcPath(), utils.path.GetCodeGitPath()
 		if not os.path.exists(artGitPath) or not os.path.exists(afcGitPath):
 			wx.MessageBox(u"请先在设置中设置路径", u'错误', wx.OK | wx.ICON_INFORMATION)
@@ -171,12 +180,12 @@ class WebReleaseFrame(_extend.WebReleaseFrame):
 		self.m_ArtBranch.Clear()
 		current_branch, branches, stdout = self.artGit.GetBranches()
 		for b in branches:
-			self.m_ArtBranch.Append(b)
+			self.m_ArtBranch.Append(b.split("/")[-1])
 
 		self.m_CodeBranch.Clear()
 		current_branch, branches, stdout = self.codeGit.GetBranches()
 		for b in branches:
-			self.m_CodeBranch.Append(b)
+			self.m_CodeBranch.Append(b.split("/")[-1])
 
 	def _OnSelectItem( self, event ):
 		event.Skip()
@@ -191,22 +200,36 @@ class WebReleaseFrame(_extend.WebReleaseFrame):
 		if bIsIOS:
 			self.m_ItemAppName.SetValue(obj.app_name)
 			self.m_ItemBundleID.SetValue(obj.bundle_id)
+		idx = self.m_ArtBranch.FindString(obj.art_branch)
+		if not idx == wx.NOT_FOUND:
+			self.m_ArtBranch.SetSelection(idx)
+		idx = self.m_CodeBranch.FindString(obj.code_branch)
+		if not idx == wx.NOT_FOUND:
+			self.m_CodeBranch.SetSelection(idx)
+
+
+	def _OnClickRefresh( self, event ):
+		event.Skip()
+		self._fetchAll()
 
 	def _OnClickExecute( self, event):
 		event.Skip()
 
-
-		print '===== Make ipd for CodeBranch: %s and ArtBranch: %s'%(codeBranch, artBranch)
+		artBranch, codeBranch = self.m_ArtBranch.GetStringSelection(), self.m_CodeBranch.GetStringSelection()
+		print '===== Make ipa for CodeBranch: %s and ArtBranch: %s'%(codeBranch, artBranch)
 
 		selectId = self.m_BranchList.GetSelection()
 		if selectId == wx.NOT_FOUND:
 			return
 		obj = self.branches[selectId]
-		branch_name = obj.name
-		success, info = GetBranchInfo(self.ssh, branch_name)
+		success, info = GetBranchInfo(self.ssh, obj.uuid)
 
 		if not success:
-			print '===== Branch %s NOT FOUND on remote, try to create one ====='%(branch_name)
+			print '===== Branch %s NOT FOUND on remote ====='%(obj.name)
+			return
+		if BuildIPA(self.ssh, obj.uuid):
+			UploadIPA(self.ssh, obj.uuid , "~/project/aegean/client/archive/momo_release_i.ipa")
+
 
 	def _OnClickAddButton( self, event):
 		# "branch_name": data.name,

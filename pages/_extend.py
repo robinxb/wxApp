@@ -63,67 +63,6 @@ class MainFrame ( wx.Frame ):
 
 
 ###########################################################################
-## Class GitBranchPanel
-###########################################################################
-
-class GitBranchPanel ( wx.Panel ):
-
-	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL )
-
-		bSizer12 = wx.BoxSizer( wx.VERTICAL )
-
-		bSizer9 = wx.BoxSizer( wx.HORIZONTAL )
-
-		bSizer10 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_staticText7 = wx.StaticText( self, wx.ID_ANY, u"选择代码分支", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText7.Wrap( -1 )
-		bSizer10.Add( self.m_staticText7, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-		m_listCodeChoices = []
-		self.m_listCode = wx.ListBox( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_listCodeChoices, 0 )
-		bSizer10.Add( self.m_listCode, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-
-		bSizer9.Add( bSizer10, 1, wx.EXPAND, 5 )
-
-		bSizer11 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_staticText8 = wx.StaticText( self, wx.ID_ANY, u"选择美术分支", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText8.Wrap( -1 )
-		bSizer11.Add( self.m_staticText8, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-		m_listArtChoices = []
-		self.m_listArt = wx.ListBox( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_listArtChoices, 0 )
-		bSizer11.Add( self.m_listArt, 1, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-
-		bSizer9.Add( bSizer11, 1, wx.EXPAND, 5 )
-
-
-		bSizer12.Add( bSizer9, 1, wx.EXPAND, 5 )
-
-		self.m_button30 = wx.Button( self, wx.ID_ANY, u"尝试合并", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer12.Add( self.m_button30, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
-
-
-		self.SetSizer( bSizer12 )
-		self.Layout()
-
-		# Connect Events
-		self.m_button30.Bind( wx.EVT_BUTTON, self._OnConfirm )
-
-	def __del__( self ):
-		pass
-
-
-	# Virtual event handlers, overide them in your derived class
-	def _OnConfirm( self, event ):
-		event.Skip()
-
-
-###########################################################################
 ## Class MainPanel
 ###########################################################################
 
@@ -429,6 +368,9 @@ class WebReleaseFrame ( wx.Frame ):
 		self.m_BranchList = wx.ListBox( self.m_scrolledWindow1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_BranchListChoices, 0 )
 		bSizer26.Add( self.m_BranchList, 0, wx.ALL, 5 )
 
+		self.m_button10 = wx.Button( self.m_scrolledWindow1, wx.ID_ANY, u"刷新", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer26.Add( self.m_button10, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
 		self.m_AddButton = wx.Button( self.m_scrolledWindow1, wx.ID_ANY, u"添加", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer26.Add( self.m_AddButton, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 
@@ -505,6 +447,7 @@ class WebReleaseFrame ( wx.Frame ):
 
 		# Connect Events
 		self.m_BranchList.Bind( wx.EVT_LISTBOX, self._OnSelectItem )
+		self.m_button10.Bind( wx.EVT_BUTTON, self._OnClickRefresh )
 		self.m_AddButton.Bind( wx.EVT_BUTTON, self._OnClickAddButton )
 		self.m_ExecuteButton.Bind( wx.EVT_BUTTON, self._OnClickExecute )
 
@@ -516,10 +459,130 @@ class WebReleaseFrame ( wx.Frame ):
 	def _OnSelectItem( self, event ):
 		event.Skip()
 
+	def _OnClickRefresh( self, event ):
+		event.Skip()
+
 	def _OnClickAddButton( self, event ):
 		event.Skip()
 
 	def _OnClickExecute( self, event ):
+		event.Skip()
+
+
+###########################################################################
+## Class HotFixFrame
+###########################################################################
+
+class HotFixFrame ( wx.Frame ):
+
+	def __init__( self, parent ):
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"客户端热更新", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		self.SetForegroundColour( wx.Colour( 0, 0, 0 ) )
+		self.SetBackgroundColour( wx.Colour( 199, 237, 204 ) )
+
+		bSizer22 = wx.BoxSizer( wx.VERTICAL )
+
+		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Setp1: 选择可用分支" ), wx.HORIZONTAL )
+
+		m_branchListChoices = []
+		self.m_branchList = wx.ListBox( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_branchListChoices, wx.LB_SINGLE )
+		sbSizer8.Add( self.m_branchList, 0, wx.ALL, 5 )
+
+		sbSizer9 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"分支属性" ), wx.VERTICAL )
+
+		bSizer26 = wx.BoxSizer( wx.VERTICAL )
+
+		bSizer27 = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.m_staticText15 = wx.StaticText( self, wx.ID_ANY, u"版本号   ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText15.Wrap( -1 )
+		bSizer27.Add( self.m_staticText15, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.m_Version = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+		bSizer27.Add( self.m_Version, 0, wx.ALL, 5 )
+
+
+		bSizer26.Add( bSizer27, 0, 0, 5 )
+
+		bSizer271 = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.m_staticText151 = wx.StaticText( self, wx.ID_ANY, u"程序分支", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText151.Wrap( -1 )
+		bSizer271.Add( self.m_staticText151, 0, wx.ALL, 5 )
+
+		self.m_CodeBranch = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+		bSizer271.Add( self.m_CodeBranch, 0, wx.ALL, 5 )
+
+
+		bSizer26.Add( bSizer271, 0, 0, 5 )
+
+		bSizer2711 = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.m_staticText1511 = wx.StaticText( self, wx.ID_ANY, u"美术分支", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText1511.Wrap( -1 )
+		bSizer2711.Add( self.m_staticText1511, 0, wx.ALL, 5 )
+
+		self.m_ArtBranch = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+		bSizer2711.Add( self.m_ArtBranch, 0, wx.ALL, 5 )
+
+
+		bSizer26.Add( bSizer2711, 0, 0, 5 )
+
+
+		sbSizer9.Add( bSizer26, 0, 0, 5 )
+
+
+		sbSizer8.Add( sbSizer9, 0, 0, 5 )
+
+
+		bSizer22.Add( sbSizer8, 1, wx.EXPAND, 5 )
+
+		sbSizer10 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Step2: 确认Patch信息" ), wx.VERTICAL )
+
+		sbSizer10.SetMinSize( wx.Size( -1,333 ) )
+		self.m_diffLog = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE|wx.TE_READONLY )
+		sbSizer10.Add( self.m_diffLog, 1, wx.ALL|wx.EXPAND, 5 )
+
+		self.m_button13 = wx.Button( self, wx.ID_ANY, u"获取log信息", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer10.Add( self.m_button13, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+
+		bSizer22.Add( sbSizer10, 0, wx.EXPAND, 5 )
+
+		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Step3: 开始热更新" ), wx.VERTICAL )
+
+		self.m_HotFixButton = wx.Button( self, wx.ID_ANY, u"执行", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer11.Add( self.m_HotFixButton, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+
+		bSizer22.Add( sbSizer11, 0, wx.EXPAND, 5 )
+
+
+		self.SetSizer( bSizer22 )
+		self.Layout()
+		bSizer22.Fit( self )
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.m_branchList.Bind( wx.EVT_LISTBOX, self._OnClickBranch )
+		self.m_button13.Bind( wx.EVT_BUTTON, self._OnClickDiffLog )
+		self.m_HotFixButton.Bind( wx.EVT_BUTTON, self._OnClickHotFix )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, overide them in your derived class
+	def _OnClickBranch( self, event ):
+		event.Skip()
+
+	def _OnClickDiffLog( self, event ):
+		event.Skip()
+
+	def _OnClickHotFix( self, event ):
 		event.Skip()
 
 

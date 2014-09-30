@@ -5,7 +5,6 @@ import MainPanel
 import InitPanel
 import ConfigPanel
 import SvnToGitPanel
-import GitBranchPanel
 
 class MainFrame(MainFrame):
 	def __init__(self, parent = None):
@@ -16,7 +15,6 @@ class MainFrame(MainFrame):
 		self.m_Panels["InitPanel"] = InitPanel.InitPanel(self)
 		self.m_Panels["ConfigPanel"] = ConfigPanel.ConfigPanel(self)
 		self.m_Panels["SvnToGitPanel"] = SvnToGitPanel.SvnToGitPanel(self)
-		self.m_Panels["GitBranchPanel"] = GitBranchPanel.GitBranchPanel(self)
 
 		self.HideAll()
 		self.m_Panels["MainPanel"].Show()
@@ -49,8 +47,6 @@ class MainFrame(MainFrame):
 
 	def ShowGitBranchPanel(self):
 		self.HideAll()
-		self.m_Panels["GitBranchPanel"].Show()
-		self.m_Panels["GitBranchPanel"].LoadGit()
 		self.Fit()
 
 	def ShowSvnToGitPanel(self):
