@@ -1,5 +1,4 @@
 import helper
-import packbin
 import cfg
 import path
 import evtdef
