@@ -36,16 +36,22 @@ def GetBranchInfo(sshobj, uuid):
 
 def CreateBranch(sshobj, data):
 	print '===== Create cfg on builder ====='
-	sshin, sshout, ssherr = sshobj.exec_command('cd ~/project/branch && python cfg.py -c %s --art %s --code %s'%(data["name"], data["artBranch"], data["codeBranch"]))
+	sshin, sshout, ssherr = sshobj.exec_command('cd ~/project/branch && python cfg.py -c %s --art %s --code %s -t %s'%(data["name"], data["artBranch"], data["codeBranch"], data["package_type"]))
 	output = sshout.read().strip() + ssherr.read().strip()
 	if "Fatal" in output:
 		print output
 		return False
+	print output
+	print ssherr.read()
 
 	info = json.loads(output)
 
 	print '===== Ask builder to create branch on pm.ejoy.com ====='
-	cmd = "cd ~/project/branch && python upload.py create %s %s %s %s %s %s %s"%(data["name"], data["version"], data["desc"], data["package_type"], data["app_name"], data["bundle_id"], info["uuid"])
+	if data["package_type"] == "ios":
+		cmd = "cd ~/project/branch && python upload.py create %s %s %s %s %s %s %s"%(data["name"], data["version"], data["desc"], data["package_type"], info["uuid"], data["app_name"], data["bundle_id"])
+	else:
+		cmd = "cd ~/project/branch && python upload.py create %s %s %s %s %s"%(data["name"], data["version"], data["desc"], data["package_type"], info["uuid"])
+
 	sshin, sshout, ssherr = sshobj.exec_command(cmd)
 	output = sshout.read().strip() + ssherr.read().strip()
 	print(output)
@@ -54,29 +60,32 @@ def CreateBranch(sshobj, data):
 
 	return True
 
-def BuildIPA(sshobj, uuid):
+def Build(sshobj, uuid, no_output = False):
 	print '===== Build IPA ====='
 	(sshin1, sshout1, ssherr) = sshobj.exec_command('cd ~/project/branch && python build.py %s'%(uuid))
 	build_success = False
 	hash_success = False
-	while True:
-		line = sshout1.readline()
-		if line != '':
-			out = line.rstrip('\n')
-			print(out)
-			if "BUILDER_IPA_SUCCESS" in out:
-				build_success = True
-			if "MD5_GENERATE_SUCCESS" in out:
-				hash_success = True
-		else:
-			break
-	if not build_success or not hash_success:
-		print '===== Build Fail, Please Check The Error ====='
-		print ssherr.read()
-		return False
+	if not no_output:
+		while True:
+			line = sshout1.readline()
+			if line != '':
+				out = line.rstrip('\n')
+				print(out)
+				if "BUILDER_IPA_SUCCESS" in out:
+					build_success = True
+				if "MD5_GENERATE_SUCCESS" in out:
+					hash_success = True
+			else:
+				break
+		if not build_success or not hash_success:
+			print '===== Build Fail, Please Check The Error ====='
+			print ssherr.read()
+			return False
+	else:
+		sshout1.read()
 	return True
 
-def UploadIPA(sshobj, uuid, pathOnRemote):
+def Upload(sshobj, uuid, pathOnRemote):
 	print '===== Update IPA to pm.ejoy.com ====='
 
 	(sshin1, sshout1, ssherr) = sshobj.exec_command('cd ~/project/branch && python upload.py update %s %s '%(uuid, pathOnRemote))
@@ -164,28 +173,16 @@ class WebReleaseFrame(_extend.WebReleaseFrame):
 					self.m_BranchList.Append(bObject.name)
 
 	def _loadAll(self):
-		artGitPath, afcGitPath = utils.path.GetDesignAfcPath(), utils.path.GetCodeGitPath()
-		if not os.path.exists(artGitPath) or not os.path.exists(afcGitPath):
-			wx.MessageBox(u"请先在设置中设置路径", u'错误', wx.OK | wx.ICON_INFORMATION)
-			return
-		self.artGit = utils.Git(artGitPath)
-		self.codeGit = utils.Git(afcGitPath)
-		if not self.artGit.IsGitPath():
-			wx.MessageBox(u"美术资源路径无效", u'错误', wx.OK | wx.ICON_ERROR)
-			return
-		if not self.codeGit.IsGitPath():
-			wx.MessageBox(u"程序资源路径无效", u'错误', wx.OK | wx.ICON_ERROR)
-			return
-
 		self.m_ArtBranch.Clear()
-		current_branch, branches, stdout = self.artGit.GetBranches()
-		for b in branches:
-			self.m_ArtBranch.Append(b.split("/")[-1])
-
 		self.m_CodeBranch.Clear()
-		current_branch, branches, stdout = self.codeGit.GetBranches()
+
+		current_branch, branches, stdout = utils.helper.GetArtGitBranchs(self.ssh)
 		for b in branches:
-			self.m_CodeBranch.Append(b.split("/")[-1])
+			self.m_ArtBranch.Append(b)
+
+		current_branch, branches, stdout = utils.helper.GetCodeGitBranchs(self.ssh)
+		for b in branches:
+			self.m_CodeBranch.Append(b)
 
 	def _OnSelectItem( self, event ):
 		event.Skip()
@@ -195,6 +192,9 @@ class WebReleaseFrame(_extend.WebReleaseFrame):
 		obj = self.branches[selectId]
 		self.m_ItemBranchName.SetValue(obj.name)
 		self.m_ItemDesc.SetValue(obj.desc)
+		self.m_ItemVersion1.SetValue(int(obj.version1))
+		self.m_ItemVersion2.SetValue(int(obj.version2))
+		self.m_ItemVersion3.SetValue(int(obj.version3))
 		bIsIOS = obj.type == 'ios'
 		self.m_ItemIsIos.SetValue(bIsIOS)
 		if bIsIOS:
@@ -227,9 +227,11 @@ class WebReleaseFrame(_extend.WebReleaseFrame):
 		if not success:
 			print '===== Branch %s NOT FOUND on remote ====='%(obj.name)
 			return
-		if BuildIPA(self.ssh, obj.uuid):
-			UploadIPA(self.ssh, obj.uuid , "~/project/aegean/client/archive/momo_release_i.ipa")
-
+		if Build(self.ssh, obj.uuid, obj.type == 'android'):
+			if obj.type == 'ios':
+				Upload(self.ssh, obj.uuid , "~/project/aegean/client/archive/momo_release_id.ipa")
+			else:
+				Upload(self.ssh, obj.uuid , "~/project/aegean/client/archive/farm_momo.apk")
 
 	def _OnClickAddButton( self, event):
 		# "branch_name": data.name,

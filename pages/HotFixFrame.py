@@ -28,6 +28,7 @@ class HotFixFrame(_extend.HotFixFrame):
 		conn = self.ssh.connect(ip, username = 'farmbuilder', password = "farm")
 		print '===== SSH connected to %s ====='%(ip)
 		self._loadAll()
+		self.current = None
 
 	def _loadAll(self):
 		self.branches = []
@@ -50,7 +51,9 @@ class HotFixFrame(_extend.HotFixFrame):
 		print '===== SSH close ====='
 
 	def _getDiffLog(self, isCodePath):
-		(sshin, sshout, ssherr) = self.ssh.exec_command('cd ~/project/branch && python hotfix.py difflog %s HEAD dev'%(isCodePath and "True" or "False"))
+		obj = self.current
+		print 'cd ~/project/branch && python hotfix.py difflog %s %s'%(isCodePath and "True" or "False", obj.uuid)
+		(sshin, sshout, ssherr) = self.ssh.exec_command('cd ~/project/branch && python hotfix.py difflog %s %s'%(isCodePath and "True" or "False", obj.uuid))
 
 		ret = ""
 		while True:
@@ -89,6 +92,7 @@ class HotFixFrame(_extend.HotFixFrame):
 		self.m_Version.SetValue(obj.version)
 		self.m_CodeBranch.SetValue(obj.codeBranch)
 		self.m_ArtBranch.SetValue(obj.artBranch)
+		self.current = obj
 
 	def _OnClickHotFix( self, event ):
 		event.Skip()
@@ -106,6 +110,7 @@ class HotFixFrame(_extend.HotFixFrame):
 				self.m_diffLog.AppendText(line)
 			else:
 				break
+		print ssherr.read()
 
 	def _OnClickDiffLog( self, event ):
 		event.Skip()
@@ -113,7 +118,13 @@ class HotFixFrame(_extend.HotFixFrame):
 		self.m_diffLog.AppendText(u'正在获取分支log信息，请稍候...')
 		logInfo = self._getDiffLog(True)
 		self.m_diffLog.Clear()
+		changed = False
 		for info in logInfo:
+			if not info.get('hash'):
+				continue
 			log = LOG_FORMAT%(info['message'].decode('utf-8'), info['hash'], info['date'], info['author'])
 			self.m_diffLog.AppendText(log)
+			changed = True
+		if not changed:
+			self.m_diffLog.AppendText(u'没有更新内容')
 

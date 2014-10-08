@@ -65,7 +65,8 @@ def SetSVNPath(path):
 	return _SetLocalCfg("SVNPath", path)
 
 def GetBuilderIP():
-	return _GetLocalCfg("BuilderIP")
+	return '172.16.100.253'
+	# return _GetLocalCfg("BuilderIP")
 
 def SetBuilderIP(ip):
 	return _SetLocalCfg("BuilderIP", ip)
